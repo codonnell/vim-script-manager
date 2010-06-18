@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from BeautifulSoup import BeautifulSoup #HTML Parser
-from urllib2 import urlopen
 from datetime import date
-import re
 
 class VimScript(object):
     def __init__(self, name='', url='', version=1.0, uploadDate=date.today(),
@@ -22,7 +19,10 @@ class VimScript(object):
         """Downloads the vim script using its url attr.
         """
         import os.path
+        import re
         from urllib import urlretrieve
+        from urllib2 import urlopen
+        from BeautifulSoup import BeautifulSoup #HTML Parser
         print self.url
         soup = BeautifulSoup(urlopen(self.url))
         downloadElt = soup.find(href=re.compile('download_script'))
@@ -51,20 +51,22 @@ class VimScript(object):
             self.files = [member.name for member in archive.getmembers() if
                     member.isfile()]
             archive.extractall(root)
-        elif (ext == u'.gz' or ext == u'.bz2') and os.path.splitext(root)[1] == u'.tar':
+        elif (ext == u'.gz' or ext == u'.bz2') and (os.path.splitext(root)[1] ==
+                u'.tar'):
             import tarfile
             archive = tarfile.open(filepath)
             self.files = [member.name for member in archive.getmembers() if
                     member.isfile()]
             archive.extractall(os.path.splitext(root)[0])
         elif ext == u'.vba':
-            import subprocess
-            import tempfile
+            from subprocess import Popen
+            from tempfile import NamedTemporaryFile
             import os
-            scriptFile = tempfile.NamedTemporaryFile(mode='w', delete=False)
+            scriptFile = NamedTemporaryFile(mode='w', delete=False)
             scriptFile.write(':so %\n:q\n')
             scriptFile.close()
-            vim = subprocess.Popen('vim' + ' -s {0} {1}'.format(scriptFile.name, filepath), shell=True)
+            vim = Popen('vim' + ' -s {0} {1}'.format(scriptFile.name, filepath),
+                    shell=True)
             print vim.wait()
             os.unlink(scriptFile.name)
             
