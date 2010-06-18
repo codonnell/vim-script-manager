@@ -51,21 +51,30 @@ class VimScript(object):
             self.files = [member.name for member in archive.getmembers() if
                     member.isfile()]
             archive.extractall(root)
-        elif ext == u'.gz' and os.path.splitext(root)[1] == u'.tar':
+        elif (ext == u'.gz' or ext == u'.bz2') and os.path.splitext(root)[1] == u'.tar':
             import tarfile
             archive = tarfile.open(filepath)
             self.files = [member.name for member in archive.getmembers() if
                     member.isfile()]
             archive.extractall(os.path.splitext(root)[0])
         elif ext == u'.vba':
-            from subprocess import Popen
+            import subprocess
+            import tempfile
+            import os
+            scriptFile = tempfile.NamedTemporaryFile(mode='w', delete=False)
+            scriptFile.write(':so %\n:q\n')
+            scriptFile.close()
+            vim = subprocess.Popen('vim' + ' -s {0} {1}'.format(scriptFile.name, filepath), shell=True)
+            print vim.wait()
+            os.unlink(scriptFile.name)
+            
 
     def install(self):
         """Download and unpack the script into the vim runtime directory.
         """
-        #filepath = self._download()
-        #self._unpack(filepath)
-        self._unpack(u'/home/chris/Downloads/taglist_45.tar')
+        filepath = self._download()
+        self._unpack(filepath)
+        #self._unpack(u'/home/chris/Downloads/taglist_45.tar')
         
 
 # TODO: Finish this parsing.
@@ -83,7 +92,7 @@ class VimScript(object):
 
 if __name__ == "__main__":
     taglist = VimScript(name='project',
-            url='http://www.vim.org/scripts/script.php?script_id=273')
+            url='http://www.vim.org/scripts/script.php?script_id=1318')
     # soup = BeautifulSoup(urlopen(taglist.url))
     # downloadSpan = soup.findAll(name='span', attrs={'class' : 'txth2'})
     # downloadLink = soup.find(href=re.compile('download_script'))
@@ -97,9 +106,9 @@ if __name__ == "__main__":
     # print dateList
     # print taglist.date
 
-    #taglist.install()
-    import subprocess
-    vim = subprocess.Popen('vim', stdin=subprocess.PIPE)
-    vim.communicate(':e test.txt')
-    vim.communicate(':w')
-    vim.terminate()
+    taglist.install()
+    # import subprocess
+    # vim = subprocess.Popen(['vim', '-S #FILENAMEHERE'])# :q<cr>'])
+    # vim.communicate(':e test.txt')
+    # vim.communicate(':w')
+    # vim.terminate()
