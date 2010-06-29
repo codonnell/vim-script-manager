@@ -43,7 +43,8 @@ class VimScript(object):
         if ext == u'.zip':
             from zipfile import ZipFile
             archive = ZipFile(filepath, 'r')
-            self.files = [member.filename for member in archive.infolist()]
+            self.files = [member.filename for member in archive.infolist() if
+                    not member.filename[-1] == '/']
             archive.extractall('/home/chris/.vim')
         elif ext == u'.tar' or ext == u'.tgz' or ext == u'.bz2':
             import tarfile
@@ -71,19 +72,21 @@ class VimScript(object):
         """
         filepath = self._download()
         self._unpack(filepath)
+        vimExecute(':helptags /home/chris/.vim/doc\n:q\n')
         #self._unpack(u'/home/chris/Downloads/taglist_45.tar')
 
     def uninstall(self):
         import os
         import os.path
         if os.path.splitext(self.files[0])[1] == '.vba':
-            vimExecute(':RmVimball {0}'.format(self.files[0]))
+            vimExecute(':RmVimball {0}\n:q\n'.format(self.files[0]))
         else:
             print "Deleting {0}".format([os.path.join('/home/chris/.vim',
                 filename) for filename in self.files])
             for filename in self.files:
                 filepath = os.path.join('/home/chris/.vim', filename)
                 os.unlink(filepath)
+        vimExecute(':helptags /home/chris/.vim/doc\n:q\n')
 
 def vimExecute(command):
     from subprocess import Popen
@@ -95,14 +98,15 @@ def vimExecute(command):
     scriptFile = NamedTemporaryFile(mode='w', delete=False)
     scriptFile.write(command)
     scriptFile.close()
-    vim = Popen('vim' + ' -s {0} {1}'.format(scriptFile.name, filepath),
+    vim = Popen('vim' + ' -s {0}'.format(scriptFile.name),
             shell=True)
     vim.wait()
     os.unlink(scriptFile.name)
 
 
 if __name__ == "__main__":
-    script = VimScript('taglist',
-            'http://www.vim.org/scripts/script.php?script_id=273')
+    script = VimScript('slimv',
+            'http://www.vim.org/scripts/script.php?script_id=2531')
     script.install()
+    script.uninstall()
 
