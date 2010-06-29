@@ -26,7 +26,8 @@ class VimScript(object):
         from BeautifulSoup import BeautifulSoup #HTML Parser
         soup = BeautifulSoup(urlopen(self.url))
         downloadElt = soup.find(href=re.compile('download_script'))
-        downloadLink = os.path.join('http://www.vim.org/scripts', downloadElt['href'])
+        downloadLink = os.path.join('http://www.vim.org/scripts',
+                downloadElt['href'])
         print "Downloading {0}...".format(downloadElt.string)
         tempdir = tempfile.mkdtemp()
         filepath = '/'.join([tempdir, downloadElt.string])
