@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+from parser import parseSearchPage
+
 class SearchResult(object):
     def __init__(self, name, url, category, rating, downloads, description):
         self.name = name
@@ -25,31 +27,7 @@ class Search(object):
         searchForm = ParseResponse(response, backwards_compat=False)[3]
         searchForm['keywords'] = self.term
         resultsPage = urlopen(searchForm.click())
-
-        import BeautifulSoup
-        import re
-        soup = BeautifulSoup.BeautifulSoup(resultsPage,
-                convertEntities=BeautifulSoup.BeautifulSoup.HTML_ENTITIES)
-        header = soup.find(text='Search Results')
-        resultsTable = header.parent.nextSibling.nextSibling
-        # Removes line break entries
-        scriptsTable = [entry for entry in resultsTable.contents if not
-                isinstance(entry, BeautifulSoup.NavigableString)]
-        scriptsTable = scriptsTable[2:-1]
-        for scriptEntry in scriptsTable:
-            scriptEntry = [entry for entry in scriptEntry if not
-                    isinstance(entry, BeautifulSoup.NavigableString)]
-            urlEntry = scriptEntry[0]
-            name = urlEntry.contents[0].string
-            print name
-            url = '/'.join(['http://www.vim.org/scripts',
-                urlEntry.contents[0]['href']])
-            category = scriptEntry[1].string
-            rating = int(scriptEntry[2].string)
-            downloads = int(scriptEntry[3].string)
-            description = scriptEntry[4].contents[0].string
-            self.results.append(SearchResult(name, url, category, rating,
-                downloads, description))
+        self.results = parseSearchPage(resultsPage)
 
         for result in self.results:
             print unicode(result)
