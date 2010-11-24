@@ -16,7 +16,7 @@ class VimScript(object):
         self.files = files
 
     def _download(self):
-        """Downloads the vim script using its url attr.
+        """Downloads the vim script using its url attr into a temp dir.
         """
         import tempfile
         import os.path
@@ -36,8 +36,8 @@ class VimScript(object):
 
     #TODO: Correctly determine to which directory .vim files should be moved.
     def _unpack(self, filepath):
-        """Determines the vim script's extension and unpacks it. Also sets the
-        files variable.
+        """Determines the vim script's extension and unpacks it. Sets the
+        files variable. Removes the archive file and temp dir.
         """
         import os.path
         root, ext = os.path.splitext(filepath)
@@ -107,7 +107,7 @@ def vimExecute(command):
 
 if __name__ == "__main__":
     script = VimScript('slimv',
-            'http://www.vim.org/scripts/script.php?script_id=2531')
+            'http://www.vim.org/scripts/script.php?script_id=2501')
     script.install()
-    script.uninstall()
+    #script.uninstall()
 
